@@ -2,7 +2,6 @@ import numpy as np
 import scipy.sparse as sp
 import torch
 
-
 def encode_onehot(labels):
     '''
     目的：为labels创建独热码向量
@@ -32,8 +31,13 @@ def encode_onehot(labels):
     
     labels_onehot = np.array(list(map(classes_dict.get, labels)), dtype=np.int32)
     #先把独热码向量和元素做映射，然后转换成序列，再用np.array转换成数组，用dtype将数组元素置为int
-                             
+                              
     return labels_onehot
+'''
+    疑问：一开始为什么要用set生成对应的互不相同元素？是为了去重吗？
+    直接用原labels对应独热码向量不行吗，何必多此一举？
+   
+'''
 
 
 def load_data(path="../data/cora/", dataset="cora"):
