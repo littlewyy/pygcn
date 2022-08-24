@@ -4,11 +4,35 @@ import torch
 
 
 def encode_onehot(labels):
-    classes = set(labels)
+    '''
+    目的：为labels创建独热码向量
+    思路：
+    先给每个labels分配一个元素，
+    然后根据这些元素的顺序，对应地给元素分配独热码向量，
+    最后再把原label跟独热码向量做映射
+    
+    函数用法：
+    set(seq = ())：为seq (元素序列）对应创建互不相同的元素
+    np.identity(n)：创建 n * n 的单位矩阵
+    dict = {idx:val for ... in ...  if ... in ...}
+    enumerate(iterables,start = 0): 创建从start开始与iterables逐个对应的映射函数。
+    np.array(p_object,dtype = None)：创建一个数组，其内容为p_object，类型为dtype
+    map(func,iterables)：创建映射函数
+    list():将元素整合成序列
+    '''
+    
+    classes = set(labels) #给每个label都分配一个独特的元素，存在classes里面
     classes_dict = {c: np.identity(len(classes))[i, :] for i, c in
-                    enumerate(classes)}
-    labels_onehot = np.array(list(map(classes_dict.get, labels)),
-                             dtype=np.int32)
+                    enumerate(classes)} 
+                    
+    '''
+    创建一个字典，其中索引值为别名，键值为对应独热码向量
+      独热码向量从单位向量中（通过映射函数左值）获取对应行
+    '''
+    
+    labels_onehot = np.array(list(map(classes_dict.get, labels)), dtype=np.int32)
+    #先把独热码向量和元素做映射，然后转换成序列，再用np.array转换成数组，用dtype将数组元素置为int
+                             
     return labels_onehot
 
 
