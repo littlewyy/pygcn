@@ -77,12 +77,13 @@ def normalize(mx):
     mx = r_mat_inv.dot(mx) #邻接矩阵点乘度矩阵
     return mx
 
-
+#计算正确率
 def accuracy(output, labels):
+    #不确定：output.max(1)，则按照行求最大值，并返回最大值和最大值的索引，此处用.type_as(labels)使得索引类型与labels相同。output.max(0)则按照列求最大值，其余相同。
     preds = output.max(1)[1].type_as(labels)
-    correct = preds.eq(labels).double()
-    correct = correct.sum()
-    return correct / len(labels)
+    correct = preds.eq(labels).double() #返回preds和labels相同的那些值
+    correct = correct.sum() #计算相同的数目
+    return correct / len(labels) #len(labels)，计算labels中元素个数，依次计算准确率
 
 #把稀疏矩阵转换成张量函数。张量函数由坐标indices,数值values和尺寸shape组成。
 def sparse_mx_to_torch_sparse_tensor(sparse_mx):
