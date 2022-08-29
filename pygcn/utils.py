@@ -4,41 +4,27 @@ import torch
 
 def encode_onehot(labels):
     '''
-    目的：为labels创建独热码向量
-    思路：
-    先给每个labels分配一个元素，
-    然后根据这些元素的顺序，对应地给元素分配独热码向量，
-    最后再把原label跟独热码向量做映射
+    目的：为labels创建独热码向量（labels为可重复的字符串，应给每种label分配一个整数，以便映射到对应的独热码向量）
+    思路：首先去重；然后分配整数；最后转化成独热码向量
     
     函数用法：
-    set(seq = ())：为seq (元素序列）对应创建互不相同的元素
+    set(seq = ())：创建不重复的集合（如果seq为空，则创建空集；否则将seq中元素去重后存入）
     np.identity(n)：创建 n * n 的单位矩阵
     dict = {idx:val for ... in ...  if ... in ...}
-    enumerate(iterables,start = 0): 创建从start开始与iterables逐个对应的映射函数。
+    enumerate(iterables,start = 0): 创建从start开始与iterables逐个对应的映射函数（start默认值为0）
     np.array(p_object,dtype = None)：创建一个数组，其内容为p_object，类型为dtype
     map(func,iterables)：创建映射函数
     list():将元素整合成序列
     '''
     
-    classes = set(labels) #给每个label都分配一个独特的元素，存在classes里面
+    classes = set(labels) #labels去重
     classes_dict = {c: np.identity(len(classes))[i, :] for i, c in
-                    enumerate(classes)} 
+                    enumerate(classes)} #给去重后的labels对应分配独热码向量。enumerate起到分配整数的作用，独热码向量视为单位矩阵中的一行。 
                     
-    '''
-    创建一个字典，其中索引值为别名，键值为对应独热码向量
-      独热码向量从单位向量中（通过映射函数左值）获取对应行
-    '''
-    
     labels_onehot = np.array(list(map(classes_dict.get, labels)), dtype=np.int32)
-    #先把独热码向量和元素做映射，然后转换成序列，再用np.array转换成数组，用dtype将数组元素置为int
+    #在字典中，取出labels对应独热码向量（通过map函数实现，map(a,b)表示从函数a中查找索引为b的键值），然后转换成序列，再用np.array转换成数组，用dtype将数组元素置为int
                               
     return labels_onehot
-'''
-    疑问：一开始为什么要用set生成对应的互不相同元素？是为了去重吗？
-    直接用原labels对应独热码向量不行吗，何必多此一举？
-   
-'''
-
 
 def load_data(path="../data/cora/", dataset="cora"):
     """Load citation network dataset (cora only for now)"""
