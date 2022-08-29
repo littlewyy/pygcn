@@ -68,12 +68,12 @@ def load_data(path="../data/cora/", dataset="cora"):
 
 
 def normalize(mx):
-    """Row-normalize sparse matrix"""
-    rowsum = np.array(mx.sum(1))
-    r_inv = np.power(rowsum, -1).flatten()
-    r_inv[np.isinf(r_inv)] = 0.
-    r_mat_inv = sp.diags(r_inv)
-    mx = r_mat_inv.dot(mx)
+    """归一化，D^(-1)点乘A"""
+    rowsum = np.array(mx.sum(1)) #计算度
+    r_inv = np.power(rowsum, -1).flatten() #度取倒数
+    r_inv[np.isinf(r_inv)] = 0. #将无穷大置为0.（double类型的0）
+    r_mat_inv = sp.diags(r_inv) #生成度矩阵
+    mx = r_mat_inv.dot(mx) #邻接矩阵点乘度矩阵
     return mx
 
 
