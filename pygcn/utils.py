@@ -2,6 +2,7 @@ import numpy as np
 import scipy.sparse as sp
 import torch
 
+#为labels生成对应的独热码向量
 def encode_onehot(labels):
     '''
     目的：为labels创建独热码向量（labels为可重复的字符串，应给每种label分配一个整数，以便映射到对应的独热码向量）
@@ -83,12 +84,14 @@ def accuracy(output, labels):
     correct = correct.sum()
     return correct / len(labels)
 
-
+#把稀疏矩阵转换成张量函数。张量函数由坐标indices,数值values和尺寸shape组成。
 def sparse_mx_to_torch_sparse_tensor(sparse_mx):
     """Convert a scipy sparse matrix to a torch sparse tensor."""
-    sparse_mx = sparse_mx.tocoo().astype(np.float32)
+    sparse_mx = sparse_mx.tocoo().astype(np.float32) #.tocoo()转化成coo格式的张量，.astype()指定数据类型
+    #torch.from_numpy()：从numpy类型的数据中获取数据
     indices = torch.from_numpy(
-        np.vstack((sparse_mx.row, sparse_mx.col)).astype(np.int64))
-    values = torch.from_numpy(sparse_mx.data)
-    shape = torch.Size(sparse_mx.shape)
+        np.vstack((sparse_mx.row, sparse_mx.col)).astype(np.int64)) #np.vstack((a,b))，将a,b中的元素按顺序排列，成为一个新的整体。.astype()指定数据类型。
+    #此处，将sparse_mx每一维的坐标信息依次排列，作为indices
+    values = torch.from_numpy(sparse_mx.data) #将数据从sparse_mx中取出，作为张量的数据
+    shape = torch.Size(sparse_mx.shape) #torch.Size()，计算尺寸大小
     return torch.sparse.FloatTensor(indices, values, shape)
