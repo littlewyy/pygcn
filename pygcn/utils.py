@@ -34,6 +34,8 @@ def load_data(path="../data/cora/", dataset="cora"):
     idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
                                         dtype=np.dtype(str))
     features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    #调试信息：idx_features_labels[:,1:-1]是什么意思
+    print(features)
     labels = encode_onehot(idx_features_labels[:, -1])
 
     # build graph
