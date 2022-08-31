@@ -1,5 +1,5 @@
-from __future__ import division
-from __future__ import print_function
+from __future__ import division #导入精确除法（否则/只能为整除）
+from __future__ import print_function #导入print()，即print必须加括号
 
 import time
 import argparse
@@ -30,25 +30,34 @@ parser.add_argument('--hidden', type=int, default=16,
 parser.add_argument('--dropout', type=float, default=0.5,
                     help='Dropout rate (1 - keep probability).')
 
+#如果有gpu,用gpu
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
+#指定生成随机数的种子，从而每次生成的随机数都是相同的。
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
-if args.cuda:
+if args.cuda: #如果有cuda,应用cuda生成随机数
     torch.cuda.manual_seed(args.seed)
 
-# Load data
+'''
+开始训练
+'''
+
+# 载入数据
 adj, features, labels, idx_train, idx_val, idx_test = load_data()
 
 # Model and optimizer
+# 模型
 model = GCN(nfeat=features.shape[1],
             nhid=args.hidden,
-            nclass=labels.max().item() + 1,
+            nclass=labels.max().item() + 1, #max().item()什么意思
             dropout=args.dropout)
+# 优化器
 optimizer = optim.Adam(model.parameters(),
                        lr=args.lr, weight_decay=args.weight_decay)
 
+#如果有cuda，则用cuda
 if args.cuda:
     model.cuda()
     features = features.cuda()
@@ -61,20 +70,28 @@ if args.cuda:
 
 def train(epoch):
     t = time.time()
+    #将模型转为训练模式
     model.train()
+    #将梯度置零。（每一轮batch开始时需要设置）
     optimizer.zero_grad()
+    #应用模型
     output = model(features, adj)
+    #训练集损失函数
     loss_train = F.nll_loss(output[idx_train], labels[idx_train])
+    #准确率
     acc_train = accuracy(output[idx_train], labels[idx_train])
+    #根据损失函数反向求导
     loss_train.backward()
+    #更新所有参数，实现优化
     optimizer.step()
 
-    if not args.fastmode:
+    if not args.fastmode: #args.fastmode什么意思？
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
-        model.eval()
+        model.eval() #将模型转变为验证模式
         output = model(features, adj)
 
+    #验证集的损失函数
     loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     acc_val = accuracy(output[idx_val], labels[idx_val])
     print('Epoch: {:04d}'.format(epoch+1),
@@ -84,7 +101,7 @@ def train(epoch):
           'acc_val: {:.4f}'.format(acc_val.item()),
           'time: {:.4f}s'.format(time.time() - t))
 
-
+#定义测试函数
 def test():
     model.eval()
     output = model(features, adj)
@@ -97,10 +114,11 @@ def test():
 
 # Train model
 t_total = time.time()
+# 逐个epoch进行train
 for epoch in range(args.epochs):
     train(epoch)
 print("Optimization Finished!")
 print("Total time elapsed: {:.4f}s".format(time.time() - t_total))
 
-# Testing
+# 最后test
 test()
